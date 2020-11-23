@@ -59,3 +59,11 @@ export interface Database {
   listings: Collection<Listing>;
   users: Collection<User>;
 }
+
+export interface Viewer {
+  _id?: string;
+  token?: string;
+  avatar?: string;
+  walletId?: string;
+  didRequest: boolean;
+}

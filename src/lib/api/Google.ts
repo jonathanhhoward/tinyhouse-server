@@ -1,5 +1,7 @@
 import { google, people_v1 } from "googleapis";
 
+export type Person = people_v1.Schema$Person;
+
 const auth = new google.auth.OAuth2(
   process.env.G_CLIENT_ID,
   process.env.G_CLIENT_SECRET,
@@ -14,7 +16,7 @@ export const Google = {
       "https://www.googleapis.com/auth/userinfo.profile",
     ],
   }),
-  async logIn(code: string): Promise<{ user: people_v1.Schema$Person }> {
+  async logIn(code: string): Promise<{ user: Person }> {
     const { tokens } = await auth.getToken(code);
 
     auth.setCredentials(tokens);
