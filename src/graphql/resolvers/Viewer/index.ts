@@ -1,7 +1,8 @@
 import { IResolvers } from "apollo-server-express";
+import { Request, Response } from "express";
 import { Google } from "../../../lib/api";
-import { Viewer, Database } from "../../../lib/types";
-import { getGoogleUser, updateUser, createUser } from "./utils";
+import { Viewer, Database, User } from "../../../lib/types";
+import { logInViaGoogle, logInViaCookie, cookieOptions } from "./utils";
 import { LogInArgs } from "./types";
 import crypto from "crypto";
 
@@ -19,24 +20,22 @@ export const viewerResolvers: IResolvers = {
     async logIn(
       _root: undefined,
       { input }: LogInArgs,
-      { db }: { db: Database }
+      { db, req, res }: { db: Database; req: Request; res: Response }
     ): Promise<Viewer> {
       try {
         const code = input?.code;
-
-        if (!code) return { didRequest: true };
-
-        const googleUser = await getGoogleUser(code);
         const token = crypto.randomBytes(16).toString("hex");
-        let user = await updateUser(googleUser, token, db);
-        if (!user) user = await createUser(googleUser, token, db);
 
-        return user
+        const viewer: User | undefined = code
+          ? await logInViaGoogle(code, token, db, res)
+          : await logInViaCookie(token, db, req, res);
+
+        return viewer
           ? {
-              _id: user._id,
-              token: user.token,
-              avatar: user.avatar,
-              walletId: user.walletId,
+              _id: viewer._id,
+              token: viewer.token,
+              avatar: viewer.avatar,
+              walletId: viewer.walletId,
               didRequest: true,
             }
           : { didRequest: true };
@@ -44,8 +43,13 @@ export const viewerResolvers: IResolvers = {
         throw new Error(`Failed to log in: ${error}`);
       }
     },
-    logOut(): Viewer {
+    logOut(
+      _root: undefined,
+      _args: unknown,
+      { res }: { res: Response }
+    ): Viewer {
       try {
+        res.clearCookie("viewer", cookieOptions);
         return { didRequest: true };
       } catch (error) {
         throw new Error(`Failed to log out: ${error}`);

@@ -1,34 +1,32 @@
+import { Request, Response } from "express";
 import { Google } from "../../../../lib/api";
 import { Database, User } from "../../../../lib/types";
 
-interface GoogleUser {
-  _id: string;
-  name: string;
-  avatar: string;
-  contact: string;
-}
+export const cookieOptions = {
+  httpOnly: true,
+  sameSite: true,
+  signed: true,
+  secure: process.env.NODE_ENV !== "development",
+};
 
-export async function getGoogleUser(code: string): Promise<GoogleUser> {
+export async function logInViaGoogle(
+  code: string,
+  token: string,
+  db: Database,
+  res: Response
+): Promise<User | undefined> {
   const { user } = await Google.logIn(code);
 
   if (!user) throw new Error("Google login error");
 
-  const _id = user?.names?.[0]?.metadata?.source?.id;
-  const name = user?.names?.[0]?.displayName;
-  const avatar = user?.photos?.[0]?.url;
-  const contact = user?.emailAddresses?.[0]?.value;
+  const _id = user.names?.[0].metadata?.source?.id;
+  const name = user.names?.[0].displayName;
+  const avatar = user.photos?.[0].url;
+  const contact = user.emailAddresses?.[0].value;
 
   if (!_id || !name || !avatar || !contact)
     throw new Error("Invalid Google user");
 
-  return { _id, name, avatar, contact };
-}
-
-export async function updateUser(
-  { _id, name, avatar, contact }: GoogleUser,
-  token: string,
-  db: Database
-): Promise<User | undefined> {
   const updateResult = await db.users.findOneAndUpdate(
     { _id },
     {
@@ -42,21 +40,46 @@ export async function updateUser(
     { returnOriginal: false }
   );
 
-  return updateResult.value;
-}
+  let viewer = updateResult.value;
 
-export async function createUser(
-  user: GoogleUser,
-  token: string,
-  db: Database
-): Promise<User | undefined> {
-  const insertResult = await db.users.insertOne({
-    ...user,
-    token,
-    income: 0,
-    bookings: [],
-    listings: [],
+  if (!viewer) {
+    const insertResult = await db.users.insertOne({
+      _id,
+      name,
+      avatar,
+      contact,
+      token,
+      income: 0,
+      bookings: [],
+      listings: [],
+    });
+
+    viewer = insertResult.ops[0];
+  }
+
+  res.cookie("viewer", _id, {
+    ...cookieOptions,
+    maxAge: 365 * 24 * 60 * 60 * 1000,
   });
 
-  return insertResult.ops[0];
+  return viewer;
+}
+
+export async function logInViaCookie(
+  token: string,
+  db: Database,
+  req: Request,
+  res: Response
+): Promise<User | undefined> {
+  const updateResult = await db.users.findOneAndUpdate(
+    { _id: req.signedCookies.viewer },
+    { $set: { token } },
+    { returnOriginal: false }
+  );
+
+  const viewer = updateResult.value;
+
+  if (!viewer) res.clearCookie("viewer", cookieOptions);
+
+  return viewer;
 }
