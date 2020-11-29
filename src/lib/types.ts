@@ -52,6 +52,7 @@ export interface User {
   income: number;
   bookings: ObjectId[];
   listings: ObjectId[];
+  authorised?: boolean;
 }
 
 export interface Database {
