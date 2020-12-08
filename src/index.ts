@@ -19,8 +19,9 @@ async function mount(app: Application) {
   });
   server.applyMiddleware({ app, path: "/api" });
 
-  app.listen(process.env.PORT);
-  console.log(`[app]: http://localhost:${process.env.PORT}`);
+  app.listen(process.env.PORT, () => {
+    console.log("[app]: http://localhost:9000/api");
+  });
 }
 
 mount(express()).catch(console.error);
