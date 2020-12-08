@@ -40,6 +40,7 @@ export interface Listing {
   bookingsIndex: BookingsIndex;
   price: number;
   numOfGuests: number;
+  authorized?: boolean;
 }
 
 export interface User {
@@ -52,7 +53,7 @@ export interface User {
   income: number;
   bookings: ObjectId[];
   listings: ObjectId[];
-  authorised?: boolean;
+  authorized?: boolean;
 }
 
 export interface Database {

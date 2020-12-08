@@ -24,7 +24,7 @@ export const userResolvers: IResolvers = {
 
         const viewer = await authorize(db, req);
 
-        if (viewer?._id === user._id) user.authorised = true;
+        if (viewer?._id === user._id) user.authorized = true;
 
         return user;
       } catch (error) {
@@ -40,7 +40,7 @@ export const userResolvers: IResolvers = {
       return Boolean(user.walletId);
     },
     income(user: User): number | null {
-      return user.authorised ? user.income : null;
+      return user.authorized ? user.income : null;
     },
     async bookings(
       user: User,
@@ -48,7 +48,7 @@ export const userResolvers: IResolvers = {
       { db }: { db: Database }
     ): Promise<UserBookingsData | null> {
       try {
-        if (!user.authorised) return null;
+        if (!user.authorized) return null;
 
         const cursor = await db.bookings
           .find({ _id: { $in: user.bookings } })

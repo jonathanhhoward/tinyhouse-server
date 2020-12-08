@@ -45,7 +45,7 @@ export const viewerResolvers: IResolvers = {
     },
     logOut(
       _root: undefined,
-      _args: unknown,
+      _args: undefined,
       { res }: { res: Response }
     ): Viewer {
       try {
