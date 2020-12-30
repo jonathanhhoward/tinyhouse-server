@@ -1,6 +1,7 @@
 import { IResolvers } from "apollo-server-express";
 import { Request } from "express";
 import { ObjectId } from "mongodb";
+import { Google } from "../../../lib/api";
 import { Database, Listing, User } from "../../../lib/types";
 import { authorize } from "../../../lib/utils";
 import {
@@ -10,6 +11,7 @@ import {
   ListingsArgs,
   ListingsData,
   ListingsFilter,
+  ListingsQuery,
 } from "./types";
 
 export const listingResolvers: IResolvers = {
@@ -35,11 +37,34 @@ export const listingResolvers: IResolvers = {
     },
     async listings(
       _root: undefined,
-      { filter, limit, page }: ListingsArgs,
+      { location, filter, limit, page }: ListingsArgs,
       { db }: { db: Database }
     ): Promise<ListingsData> {
       try {
-        let cursor = await db.listings.find({});
+        const query: ListingsQuery = {};
+        let region: string | null = null;
+
+        if (location) {
+          const { country, admin, city } = await Google.geocode(location);
+
+          if (!country) throw new Error("no country found");
+
+          let cityText = "";
+          let adminText = "";
+
+          if (city) {
+            query.city = city;
+            cityText = city + ", ";
+          }
+          if (admin) {
+            query.admin = admin;
+            adminText = admin + ", ";
+          }
+          query.country = country;
+          region = cityText + adminText + country;
+        }
+
+        let cursor = await db.listings.find(query);
 
         if (filter && filter === ListingsFilter.PRICE_LOW_TO_HIGH)
           cursor = cursor.sort({ price: 1 });
@@ -50,6 +75,7 @@ export const listingResolvers: IResolvers = {
         cursor = cursor.skip(page > 0 ? (page - 1) * limit : 0).limit(limit);
 
         return {
+          region,
           total: await cursor.count(),
           result: await cursor.toArray(),
         };
