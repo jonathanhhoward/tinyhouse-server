@@ -66,11 +66,12 @@ export const listingResolvers: IResolvers = {
 
         let cursor = await db.listings.find(query);
 
-        if (filter && filter === ListingsFilter.PRICE_LOW_TO_HIGH)
-          cursor = cursor.sort({ price: 1 });
-
-        if (filter && filter === ListingsFilter.PRICE_HIGH_TO_LOW)
-          cursor = cursor.sort({ price: -1 });
+        if (filter) {
+          cursor =
+            filter === ListingsFilter.PRICE_LOW_TO_HIGH
+              ? cursor.sort({ price: 1 })
+              : cursor.sort({ price: -1 });
+        }
 
         cursor = cursor.skip(page > 0 ? (page - 1) * limit : 0).limit(limit);
 
