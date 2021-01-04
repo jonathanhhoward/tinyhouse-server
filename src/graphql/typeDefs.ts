@@ -65,6 +65,10 @@ export const typeDefs = gql`
     code: String!
   }
 
+  input ConnectStripeInput {
+    code: String!
+  }
+
   enum ListingsFilter {
     PRICE_LOW_TO_HIGH
     PRICE_HIGH_TO_LOW
@@ -85,5 +89,7 @@ export const typeDefs = gql`
   type Mutation {
     logIn(input: LogInInput): Viewer!
     logOut: Viewer!
+    connectStripe(input: ConnectStripeInput!): Viewer!
+    disconnectStripe: Viewer!
   }
 `;
