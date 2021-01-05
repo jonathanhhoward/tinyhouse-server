@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { Google } from "../../../../lib/api";
-import { Database, User } from "../../../../lib/types";
+import { Google } from "../../../../../lib/api";
+import { Database, User } from "../../../../../lib/types";
 
 export const cookieOptions = {
   httpOnly: true,
