@@ -69,6 +69,16 @@ export const typeDefs = gql`
     code: String!
   }
 
+  input HostListingInput {
+    title: String!
+    description: String!
+    image: String!
+    type: ListingType!
+    address: String!
+    price: Int!
+    numOfGuests: Int!
+  }
+
   enum ListingsFilter {
     PRICE_LOW_TO_HIGH
     PRICE_HIGH_TO_LOW
@@ -91,5 +101,6 @@ export const typeDefs = gql`
     logOut: Viewer!
     connectStripe(input: ConnectStripeInput!): Viewer!
     disconnectStripe: Viewer!
+    hostListing(input: HostListingInput!): Listing!
   }
 `;
