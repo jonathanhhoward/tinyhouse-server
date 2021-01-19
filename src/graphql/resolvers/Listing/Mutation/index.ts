@@ -1,6 +1,6 @@
 import { Request } from "express";
 import { ObjectId } from "mongodb";
-import { Google } from "../../../../lib/api";
+import { Cloudinary, Google } from "../../../../lib/api";
 import { Database, Listing } from "../../../../lib/types";
 import { authorize } from "../../../../lib/utils";
 import { HostListingArgs } from "../types";
@@ -19,9 +19,12 @@ export async function hostListing(
   const { country, admin, city } = await Google.geocode(input.address);
   if (!country || !admin || !city) throw new Error("invalid address input");
 
+  const imageUrl = await Cloudinary.upload(input.image);
+
   const insertResult = await db.listings.insertOne({
     _id: new ObjectId(),
     ...input,
+    image: imageUrl,
     bookings: [],
     bookingsIndex: {},
     country,
