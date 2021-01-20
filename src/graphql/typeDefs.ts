@@ -79,6 +79,13 @@ export const typeDefs = gql`
     numOfGuests: Int!
   }
 
+  input CreateBookingInput {
+    id: ID!
+    source: String!
+    checkIn: String!
+    checkOut: String!
+  }
+
   enum ListingsFilter {
     PRICE_LOW_TO_HIGH
     PRICE_HIGH_TO_LOW
@@ -102,6 +109,6 @@ export const typeDefs = gql`
     connectStripe(input: ConnectStripeInput!): Viewer!
     disconnectStripe: Viewer!
     hostListing(input: HostListingInput!): Listing!
-    createBooking: String!
+    createBooking(input: CreateBookingInput!): Booking!
   }
 `;
