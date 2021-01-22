@@ -1,7 +1,7 @@
 import crypto from "crypto";
 import { Request, Response } from "express";
 import { ConnectStripeArgs, LogInArgs } from "../types";
-import { StripeApi as Stripe } from "../../../../lib/api";
+import { Stripe } from "../../../../lib/api";
 import { Database, User, Viewer } from "../../../../lib/types";
 import { authorize } from "../../../../lib/utils";
 import { cookieOptions, logInViaCookie, logInViaGoogle } from "./utils";

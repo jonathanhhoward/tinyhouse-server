@@ -1,4 +1,4 @@
-import { GeocodeResult } from "../../../../../lib/api/Google/utils";
+import { GeocodeResult } from "../../../../../lib/api";
 import { ListingsQuery } from "../../types";
 
 export function parseQuery({

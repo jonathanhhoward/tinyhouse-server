@@ -4,8 +4,7 @@ import { Stripe } from "../../../../lib/api";
 import { Booking, Database } from "../../../../lib/types";
 import { authorize } from "../../../../lib/utils";
 import { CreateBookingArgs } from "../types";
-
-const MILLISEC_PER_DAY = 86400000;
+import { MILLISEC_PER_DAY, resolveBookingsIndex } from "./utils";
 
 export const createBooking = async (
   _root: undefined,
@@ -30,13 +29,11 @@ export const createBooking = async (
     if (checkOutDate < checkInDate)
       throw new Error("check out date can't be before check in date");
 
-    // to be continued in the next lesson
-    //
-    // const bookingsIndex = resolveBookingsIndex(
-    //   listing.bookingsIndex,
-    //   checkIn,
-    //   checkOut
-    // );
+    const bookingsIndex = resolveBookingsIndex(
+      listing.bookingsIndex,
+      checkIn,
+      checkOut
+    );
 
     const totalPrice =
       listing.price *
@@ -75,7 +72,7 @@ export const createBooking = async (
     await db.listings.updateOne(
       { _id: listing._id },
       {
-        // $set: { bookingsIndex }, // to be handled in the next lesson
+        $set: { bookingsIndex },
         $push: { bookings: insertedBooking._id },
       }
     );

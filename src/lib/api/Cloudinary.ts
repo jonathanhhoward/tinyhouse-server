@@ -1,7 +1,7 @@
 import cloudinary from "cloudinary";
 
-export const Cloudinary = {
-  async upload(image: string): Promise<string> {
+export class Cloudinary {
+  static async upload(image: string): Promise<string> {
     const res = await cloudinary.v2.uploader.upload(image, {
       api_key: process.env.CLOUDINARY_KEY,
       api_secret: process.env.CLOUDINARY_SECRET,
@@ -10,5 +10,5 @@ export const Cloudinary = {
     });
 
     return res.secure_url;
-  },
-};
+  }
+}

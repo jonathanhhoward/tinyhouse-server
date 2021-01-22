@@ -1,6 +1,6 @@
 import { IResolvers } from "apollo-server-express";
 import { createBooking } from "./Mutaion";
-import { id, listing } from "./Booking";
+import { id, listing, tenant } from "./Booking";
 
 export const bookingResolvers: IResolvers = {
   Mutation: {
@@ -9,5 +9,6 @@ export const bookingResolvers: IResolvers = {
   Booking: {
     id,
     listing,
+    tenant,
   },
 };
